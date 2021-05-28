@@ -1,0 +1,745 @@
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+test_name: barebone
+response: '"path_to_7zip" u "archive00.7z" *'
+---
+version: 1
+app_path: path_to_7zip
+strategy: shadow
+archive:
+  name: archive00
+test_name: shadow_copy
+response: '"path_to_7zip" u "archive00.7z" * -uq0'
+---
+version: 1
+app_path: path_to_7zip
+strategy: differential
+archive:
+  name: archive00
+test_name: differential_backup
+response: '"path_to_7zip" u "archive00.7z" * -u- "-up0q3r2x2y2z0w2!archive00.patch.7z"'
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+test_name: barebone_empty_job
+response: '"path_to_7zip" u "archive00.7z" *'
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    name: subname
+test_name: archive_subname
+response: '"path_to_7zip" u "archive00.subname.7z" *'
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  password: passwd
+jobs:
+  job1:
+    id: 0
+  job2:
+    id: 1
+    password:
+  job3:
+    id: 2
+    password: "new_pass"
+test_name: password
+response:
+  [
+    '"path_to_7zip" u "archive00.7z" * -ppasswd',
+    '"path_to_7zip" u "archive00.7z" *',
+    '"path_to_7zip" u "archive00.7z" * -pnew_pass',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+threading: 10
+archive:
+  name: archive00
+test_name: threads_number
+response: '"path_to_7zip" u "archive00.7z" * -mt=10'
+---
+version: 1
+app_path: path_to_7zip
+threading: auto
+archive:
+  name: archive00
+test_name: threads_auto
+response: '"path_to_7zip" u "archive00.7z" *'
+---
+version: 1
+app_path: path_to_7zip
+threading: none
+archive:
+  name: archive00
+test_name: threads_none
+response: '"path_to_7zip" u "archive00.7z" * -mt=off'
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  out_dir: "sample_dir"
+jobs:
+  job1:
+    id: 0
+  job2:
+    id: 1
+    out_dir: "sample_folder"
+  job3:
+    id: 2
+    out_dir:
+test_name: out_dir
+response:
+  [
+    '"path_to_7zip" u "sample_dir/archive00.7z" *',
+    '"path_to_7zip" u "sample_folder/archive00.7z" *',
+    '"path_to_7zip" u "archive00.7z" *',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  extension: "bak"
+jobs:
+  job1:
+    id: 0
+  job2:
+    id: 1
+    extension: "baka"
+  job3:
+    id: 2
+    extension:
+test_name: extension
+response:
+  [
+    '"path_to_7zip" u "archive00.bak" *',
+    '"path_to_7zip" u "archive00.baka" *',
+    '"path_to_7zip" u "archive00.7z" *',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  type: "zip"
+jobs:
+  job1:
+    id: 0
+  job2:
+    id: 1
+    type: "7z"
+  job3:
+    id: 2
+    type:
+test_name: type
+response:
+  [
+    '"path_to_7zip" u "archive00.zip" *',
+    '"path_to_7zip" u "archive00.7z" *',
+    '"path_to_7zip" u "archive00.7z" *',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    include: "*.dat"
+test_name: single_job_include
+response: '"path_to_7zip" u "archive00.7z" -ir!*.dat'
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    include: ["*.dat", "*.stm"]
+test_name: single_job_include_array
+response: '"path_to_7zip" u "archive00.7z" -ir!*.dat -ir!*.stm'
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    include: ["*.dat0", "*.stm0"]
+  job2:
+    id: 1
+    include: ["*.dat1", "*.stm1"]
+test_name: multi_job_include
+response:
+  [
+    '"path_to_7zip" u "archive00.7z" -ir!*.dat0 -ir!*.stm0',
+    '"path_to_7zip" u "archive00.7z" -ir!*.dat1 -ir!*.stm1',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    include: ["*.dat0", "*.stm0"]
+  job2:
+    id: 1
+    include: ["*.dat1", "*.stm1"]
+  job3:
+    id: 2
+    exclude: ["*.but", "*.frt"]
+test_name: include_exclude
+response:
+  [
+    '"path_to_7zip" u "archive00.7z" -ir!*.dat0 -ir!*.stm0',
+    '"path_to_7zip" u "archive00.7z" -ir!*.dat1 -ir!*.stm1',
+    '"path_to_7zip" u "archive00.7z" -xr!*.but -xr!*.frt -xr!*.dat0 -xr!*.stm0 -xr!*.dat1 -xr!*.stm1',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    include: ["*.dat0", "*.stm0"]
+  job2:
+    id: 1
+    include: ["*.dat1", "*.stm1"]
+  job3:
+    id: 2
+test_name: include_implicit_exclude
+response:
+  [
+    '"path_to_7zip" u "archive00.7z" -ir!*.dat0 -ir!*.stm0',
+    '"path_to_7zip" u "archive00.7z" -ir!*.dat1 -ir!*.stm1',
+    '"path_to_7zip" u "archive00.7z" -xr!*.dat0 -xr!*.stm0 -xr!*.dat1 -xr!*.stm1',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  type: zip
+jobs:
+  job1:
+    id: 0
+    zip:
+      compression:
+        type: copy
+  job2:
+    id: 1
+    zip:
+      compression:
+        type: deflate
+  job3:
+    id: 2
+    zip:
+      compression:
+        type: deflate64
+  job4:
+    id: 3
+    zip:
+      compression:
+        type: bzip2
+  job5:
+    id: 4
+    zip:
+      compression:
+        type: lzma
+  job6:
+    id: 5
+    zip:
+      compression:
+        type: ppmd
+test_name: zip_ctype
+response:
+  [
+    '"path_to_7zip" u "archive00.zip" * -mm=copy',
+    '"path_to_7zip" u "archive00.zip" * -mm=deflate',
+    '"path_to_7zip" u "archive00.zip" * -mm=deflate64',
+    '"path_to_7zip" u "archive00.zip" * -mm=bzip2',
+    '"path_to_7zip" u "archive00.zip" * -mm=lzma',
+    '"path_to_7zip" u "archive00.zip" * -mm=ppmd',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    compression_level: store
+  job2:
+    id: 1
+    compression_level: fastest
+  job3:
+    id: 2
+    compression_level: fast
+  job4:
+    id: 3
+    compression_level: normal
+  job5:
+    id: 4
+    compression_level: maximum
+  job6:
+    id: 5
+    compression_level: ultra
+test_name: comp_level
+response:
+  [
+    '"path_to_7zip" u "archive00.7z" * -mx=0',
+    '"path_to_7zip" u "archive00.7z" * -mx=1',
+    '"path_to_7zip" u "archive00.7z" * -mx=3',
+    '"path_to_7zip" u "archive00.7z" * -mx=5',
+    '"path_to_7zip" u "archive00.7z" * -mx=7',
+    '"path_to_7zip" u "archive00.7z" * -mx=9',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  type: zip
+jobs:
+  job1:
+    id: 0
+    zip:
+      encryption: none
+  job2:
+    id: 1
+    zip:
+      encryption: zipcrypto
+  job3:
+    id: 2
+    zip:
+      encryption: aes128
+  job4:
+    id: 3
+    zip:
+      encryption: aes192
+  job5:
+    id: 4
+    zip:
+      encryption: aes256
+
+test_name: zip_encryption
+response:
+  [
+    '"path_to_7zip" u "archive00.zip" *',
+    '"path_to_7zip" u "archive00.zip" * -mem=zipcrypto',
+    '"path_to_7zip" u "archive00.zip" * -mem=aes128',
+    '"path_to_7zip" u "archive00.zip" * -mem=aes192',
+    '"path_to_7zip" u "archive00.zip" * -mem=aes256',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  type: zip
+jobs:
+  job1:
+    id: 0
+    zip:
+      metadata: False
+  job2:
+    id: 1
+    zip:
+      metadata: True
+
+test_name: zip_metadata
+response:
+  [
+    '"path_to_7zip" u "archive00.zip" * -mtc=off',
+    '"path_to_7zip" u "archive00.zip" *',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  type: zip
+jobs:
+  job1:
+    id: 0
+    zip:
+      unicode: False
+  job2:
+    id: 1
+    zip:
+      unicode: True
+
+test_name: zip_unicode
+response:
+  [
+    '"path_to_7zip" u "archive00.zip" *',
+    '"path_to_7zip" u "archive00.zip" * -mcu=on',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  type: zip
+jobs:
+  job1:
+    id: 0
+    zip:
+      compression:
+        type: deflate
+        deflate:
+          num_fast_bytes: 200
+  job2:
+    id: 1
+    zip:
+      compression:
+        type: deflate
+        deflate:
+          num_passes: 10
+  job3:
+    id: 2
+    zip:
+      compression:
+        type: deflate64
+        deflate:
+          num_passes: 10
+  job4:
+    id: 3
+    zip:
+      compression:
+        type: deflate64
+        deflate:
+          num_fast_bytes: 200
+test_name: zip_deflate
+response:
+  [
+    '"path_to_7zip" u "archive00.zip" * -mm=deflate -mfb=200',
+    '"path_to_7zip" u "archive00.zip" * -mm=deflate -mpass=10',
+    '"path_to_7zip" u "archive00.zip" * -mm=deflate64 -mpass=10',
+    '"path_to_7zip" u "archive00.zip" * -mm=deflate64 -mfb=200',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  type: zip
+jobs:
+  job1:
+    id: 0
+    zip:
+      compression:
+        type: bzip2
+        bzip2:
+          num_passes: 5
+  job2:
+    id: 1
+    zip:
+      compression:
+        type: bzip2
+        bzip2:
+          dict_size: 1m
+
+test_name: zip_bzip2
+response:
+  [
+    '"path_to_7zip" u "archive00.zip" * -mm=bzip2 -mpass=5',
+    '"path_to_7zip" u "archive00.zip" * -mm=bzip2 -md=1m',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+  type: zip
+jobs:
+  job1:
+    id: 0
+    zip:
+      compression:
+        type: ppmd
+        ppmd:
+          mem_usage: 24m
+  job2:
+    id: 1
+    zip:
+      compression:
+        type: ppmd
+        ppmd:
+          model_order: 6
+
+test_name: zip_ppmd
+response:
+  [
+    '"path_to_7zip" u "archive00.zip" * -mm=ppmd -mmem=24m',
+    '"path_to_7zip" u "archive00.zip" * -mm=ppmd -mo=6',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    7z:
+      analysis: none
+  job2:
+    id: 1
+    7z:
+      analysis: wav
+  job3:
+    id: 2
+    7z:
+      analysis: exec
+  job4:
+    id: 3
+    7z:
+      analysis: all
+  job5:
+    id: 4
+    7z:
+      analysis: 10
+
+test_name: 7z_analysis
+response:
+  [
+    '"path_to_7zip" u "archive00.7z" * -myx=0',
+    '"path_to_7zip" u "archive00.7z" * -myx=1',
+    '"path_to_7zip" u "archive00.7z" * -myx=7',
+    '"path_to_7zip" u "archive00.7z" * -myx=9',
+    '"path_to_7zip" u "archive00.7z" * -myx=10',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    7z:
+      sort_by_extension: True
+  job2:
+    id: 1
+    7z:
+      sort_by_extension: False
+  job3:
+    id: 2
+    7z:
+      sort_by_extension:
+
+test_name: 7z_sort_by_extension
+response:
+  [
+    '"path_to_7zip" u "archive00.7z" * -mqs=on',
+    '"path_to_7zip" u "archive00.7z" *',
+    '"path_to_7zip" u "archive00.7z" *',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    7z:
+      solid_mode:
+        enabled: false
+  job2:
+    id: 1
+    7z:
+      solid_mode:
+        enabled: true
+  job3:
+    id: 2
+    7z:
+      solid_mode:
+        block_per_extension: true
+  job4:
+    id: 3
+    7z:
+      solid_mode:
+        limit_files: 1000
+  job5:
+    id: 4
+    7z:
+      solid_mode:
+        limit_size: 128m
+  job6:
+    id: 5
+    7z:
+      solid_mode:
+        block_per_extension: true
+        limit_files: 1000
+  job7:
+    id: 6
+    7z:
+      solid_mode:
+        block_per_extension: true
+        limit_size: 128m
+  job8:
+    id: 7
+    7z:
+      solid_mode:
+        block_per_extension: true
+        limit_files: 1000
+        limit_size: 128m
+
+test_name: 7z_solid_mode
+response:
+  [
+    '"path_to_7zip" u "archive00.7z" * -ms=off',
+    '"path_to_7zip" u "archive00.7z" *',
+    '"path_to_7zip" u "archive00.7z" * -ms=e',
+    '"path_to_7zip" u "archive00.7z" * -ms=1000f',
+    '"path_to_7zip" u "archive00.7z" * -ms=128m',
+    '"path_to_7zip" u "archive00.7z" * -ms=e1000f',
+    '"path_to_7zip" u "archive00.7z" * -ms=e128m',
+    '"path_to_7zip" u "archive00.7z" * -ms=e1000f128m',
+  ]
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    7z:
+      passes:
+        pass1:
+          id: 0
+          type: lzma
+        pass2:
+          id: 1
+          type: lzma
+          fast_mode: true
+        pass3:
+          id: 2
+          type: lzma
+          dict_size: 1b
+        pass4:
+          id: 3
+          type: lzma
+          match_finder: bt2
+        pass5:
+          id: 4
+          type: lzma
+          num_fast_bytes: 10
+        pass6:
+          id: 5
+          type: lzma
+          num_passes: 25
+        pass7:
+          id: 6
+          type: lzma
+          num_lit_context_bits: 4
+        pass8:
+          id: 7
+          type: lzma
+          num_lit_pos_bits: 3
+        pass9:
+          id: 8
+          type: lzma
+          num_pos_bits: 2
+        pass10:
+          id: 9
+          type: lzma2
+          chunk_size: 20m
+          dict_size: 1g
+test_name: 7z_lzma_passes
+response: '"path_to_7zip" u "archive00.7z" * -m0=lzma -m1=lzma:a=0 -m2=lzma:d=1b -m3=lzma:mf=bt2 -m4=lzma:fb=10 -m5=lzma:mc=25 -m6=lzma:lc=4 -m7=lzma:lp=3 -m8=lzma:pb=2 -m9=lzma2:d=1g:c=20m'
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    7z:
+      passes:
+        pass1:
+          id: 0
+          type: ppmd
+        pass2:
+          id: 1
+          type: ppmd
+          mem_usage: 20m
+        pass3:
+          id: 2
+          type: ppmd
+          model_order: 2
+        pass4:
+          id: 3
+          type: ppmd
+          model_order: 10
+          mem_usage: 1m
+
+test_name: 7z_ppmd_passes
+response: '"path_to_7zip" u "archive00.7z" * -m0=ppmd -m1=ppmd:mem=20m -m2=ppmd:o=2 -m3=ppmd:mem=1m:o=10'
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    7z:
+      passes:
+        pass1:
+          id: 0
+          type: bcj2
+        pass2:
+          id: 1
+          type: bcj2
+          section_size: 20m
+
+test_name: 7z_bcj2_passes
+response: '"path_to_7zip" u "archive00.7z" * -m0=bcj2 -m1=bcj2:d=20m'
+---
+version: 1
+app_path: path_to_7zip
+archive:
+  name: archive00
+jobs:
+  job1:
+    id: 0
+    7z:
+      passes:
+        pass1:
+          id: 0
+          type: delta
+        pass2:
+          id: 1
+          type: delta
+          offset: 5
+
+test_name: 7z_delta_passes
+response: '"path_to_7zip" u "archive00.7z" * -m0=delta -m1=delta:5'

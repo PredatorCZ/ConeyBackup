@@ -1,0 +1,188 @@
+version: 1
+# 7zip exec path [required]
+app_path: 'c:\Program Files\7-Zip\7z'
+# directory where files will be scanned
+# if not specified, a config location will be used instead
+scan_dir: "m://"
+# update = update/add only modified files [default]
+# incremental = new incremental archive each run [placeholder, unuspported]
+# shadow = same as update but deletes files if they are not on disk (can be destructive since it defies backup purpose!!!)
+# differential = create update achive next to the base one, for example 'backup.7z' will have additional 'backup.patch.7z'
+#                this is useful when base archive is too big and you don't want to recreate it during update process
+strategy: update
+# set number of threads
+# auto (use all threads) [default]
+# off (use single thread)
+# <number of threads>: use only specified ammount of threads
+threading: auto
+# root archive options
+archive:
+  # output directory where archive will be placed
+  # if not specified, a config location will be used instead
+  out_dir: ""
+  # name/prefix of the archive [required]
+  name: music
+  # extension of the archive
+  # default is based on archive.type
+  extension: baka
+  # zip
+  # 7z [default]
+  type: zip
+  # sets password for encryption
+  password: ""
+  # store, fastest, fast, normal [default], maximum, ultra
+  compression_level: store
+jobs:
+  files1:
+    # every job must have sequence id
+    id: 0
+    # optional indentifier, this name will be inserted into archive name, in this case as: music.files1.zippy
+    name: "files1"
+    # archive.out_dir override for this job
+    out_dir: ""
+    # archive.extension override for this job
+    extension: zippy
+    # archive.password override for this job
+    password: ""
+    # archive.type override for this job
+    type: zip
+    # include files that matches following wildcard
+    include: ["*.mp3", "*.wma", "*.flac"]
+    # archive.compression_level override
+    compression_level: store
+    # must be same as type or archive.type
+    zip:
+      compression:
+        # OPTIONAL
+        # DEFAULT: deflate
+        # copy, deflate, deflate64, bzip2, lzma, ppmd
+        type: copy
+        # optional deflate(64) parameters
+        deflate:
+          # OPTIONAL
+          # Sets the number of fast bytes for the Deflate/Deflate64 encoder.
+          # It can be in the range from 3 to 258 (257 for Deflate64).
+          # Usually, a big number gives a little bit better compression ratio and a slower compression process.
+          # A large fast bytes parameter can significantly increase the compression ratio for files which contain long identical sequences of bytes.
+          num_fast_bytes: 0
+          # OPTIONAL
+          # range: 1 - 15
+          # Sets number of passes for Deflate encoder.
+          # Usually, a big number gives a little bit better compression ratio and a slower compression process.
+          num_passes: 1
+        # optional bzip2 parameters
+        bzip2:
+          # OPTIONAL, viz deflate.num_passes
+          # range: 1 - 10
+          num_passes: 1
+          # OPTIONAL
+          # range: 100000b - 900000b
+          # units: b(bytes), k(kilobytes), m(megabytes)
+          dict_size: 800k
+        # optional ppmd parameters
+        ppmd:
+          # OPTIONAL
+          # range: 16m - 256m
+          # units: b(bytes), k(kilobytes), m(megabytes)
+          mem_usage: 24m
+          # OPTIONAL
+          # range: 2 - 16
+          # default: 8
+          model_order: 3
+      # sets encryption method
+      # none, zipcrypto, aes128, aes192, aes256
+      encyption: none
+      # save NTFS metadata
+      metadata: false
+      # use utf-8 whenever possible
+      unicode: true
+
+    7z:
+      # OPTIONAL
+      # Sets type of file analysis
+      # none, wav, exec, all
+      analysis: none
+      # sort files by extension instead of filename
+      sort_by_extension: True
+      # OPTIONAL
+      # Sets solid block mode
+      solid_mode:
+        # OPTIONAL
+        # Enable or disable solid mode
+        enabled: true
+        # OPTIONAL
+        # solid block per extendion type (only for sort_by_extension: True)
+        block_per_extension: false
+        # OPTIONAL
+        # set limit of files for each solid block
+        limit_files: 1000
+        # OPTIONAL
+        # set maximum solid block size
+        # units: b(bytes), k(kilobytes), m(megabytes), g(gigabytes), m(terabytes)
+        limit_size: 128m
+      # OPTIONAL
+      # DEFAULT: lzma2
+      # specify order of compression passes
+      # compressors: lzma, lzma2, ppmd, bzip2, deflate
+      # filters: delta, bcj, bcj2, arm, armt, ia64, ppc, sparc
+      passes:
+        lzma:
+          # every pass must have sequence id
+          id: 0
+          type: lzma
+          # Sets fast compressing mode
+          # default: false
+          fast_mode: false
+          # Sets Dictionary size
+          # units: b(bytes), k(kilobytes), m(megabytes), g(gigabytes)
+          dict_size:
+          # bt2, bt3, bt4 [default], hc4
+          match_finder: bt4
+          # viz deflate.num_fast_bytes
+          # range: 5 - 273
+          # default: 32 or 64
+          num_fast_bytes: 24
+          # viz deflate.num_passes
+          # range: 0 - 1000000000
+          # default: automatic detection
+          num_passes: 1000
+          # Sets the number of literal context bits (high bits of previous literal)
+          # range: 0 - 8
+          # default: 3
+          num_lit_context_bits: 3
+          # Sets the number of literal pos bits (low bits of current position for literals)
+          # ragne: 0 - 4
+          # default: 0
+          num_lit_pos_bits: 0
+          # Sets the number of pos bits (low bits of current position)
+          # range: 0 - 4
+          # default: 2
+          num_pos_bits: 2
+        # uses all settings from lzma
+        lzma2:
+          id: 1
+          type: lzma2
+          # default: automatic detection
+          # units: b(bytes), k(kilobytes), m(megabytes), g(gigabytes)
+          chunk_size: 0
+        # viz zip.compression.ppmd
+        ppmd:
+          id: 2
+          type: ppmd
+
+        bcj2:
+          id: 3
+          type: bcj2
+          # default: automatic detection
+          # units: b(bytes), k(kilobytes), m(megabytes), g(gigabytes)
+          section_size:
+        delta:
+          id: 4
+          type: delta
+          # delta offset in bytes
+          offset: 1
+  # create other archive but exclude all files already included in previous jobs
+  files2:
+    id: 1
+    # in addition of already excluded files, exclude additional files that matches following wildcard
+    exclude: ["*.wc", "*.db"]

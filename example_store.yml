@@ -1,0 +1,26 @@
+# Following exaple will create deep copy of M drive
+# It creates 2 archives without compression
+# first named drive_m.music.baka with only mp3, wma and flac files
+# second named drive_m.other.baka with all files except mp3, wma, flac, db and wc files
+version: 1
+app_path: 'c:\Program Files\7-Zip\7z'
+scan_dir: "m://"
+archive:
+  name: drive_m
+  extension: baka
+  compression_level: store
+  type: zip
+
+jobs:
+  music:
+    id: 0
+    name: music
+    include: ["*.mp3", "*.wma", "*.flac"]
+    zip:
+      unicode: true
+  other:
+    id: 1
+    name: other
+    exclude: ["*.db", "*.wc"]
+    zip:
+      unicode: true

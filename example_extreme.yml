@@ -1,0 +1,45 @@
+# Following example will create 3 archives
+# First and second with identical compression settings
+# Third with special sorting settings
+
+version: 1
+app_path: 'c:\Program Files\7-Zip\7z'
+scan_dir: "m://"
+archive:
+  name: data
+  compression_level: ultra
+
+# can be any name, but cannot collide with predefined ones!
+presets:
+  7z_extreme: &7z_extreme
+    solid_mode:
+      enabled: true
+      limit_size: 1g
+    passes:
+      compress: &7ze_compress
+        id: 0
+        type: lzma2
+        dict_size: 1024m
+
+jobs:
+  mod:
+    id: 0
+    name: mod
+    include: "*.mod"
+    7z: *7z_extreme
+  mot:
+    id: 1
+    name: mot
+    include: "*.mot"
+    7z: *7z_extreme
+  other:
+    id: 2
+    name: other
+    7z:
+      sort_type: extension
+      solid_mode:
+        enabled: true
+        block_per_extension: false
+        limit_size: 1g
+      passes:
+        compress: *7ze_compress

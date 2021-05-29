@@ -31,15 +31,21 @@ from os import rename, remove
 config_version = 1
 app_version = '1.0.0'
 
-print('Coney Backup v' + app_version)
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--unit-test', action='store_true',
-                    help='handle config as unit test')
-parser.add_argument('--verbose', '-v', action='store_true')
-parser.add_argument('-j', '--job', help='run only specified job')
-parser.add_argument('config_path', help='path to a yaml config')
-args = parser.parse_args()
+if __name__ == "__main__":
+    print('Coney Backup v' + app_version)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--unit-test', action='store_true',
+                        help='handle config as unit test')
+    parser.add_argument('--verbose', '-v', action='store_true')
+    parser.add_argument('-j', '--job', help='run only specified job')
+    parser.add_argument('config_path', help='path to a yaml config')
+    args = parser.parse_args()
+else:
+    class Dummy:
+        job = None
+        verbose = False
+        unit_test = True
+    args = Dummy
 
 
 def load_schema(loaded_schema):
@@ -472,7 +478,7 @@ def build_cmd_app_idx(schema, jobs, index):
     if strategy_type == 'shadow':
         full_cmd = full_cmd + ' -uq0'
     elif strategy_type == 'differential':
-        if path.exists(arc_name):
+        if path.exists(arc_name) or args.unit_test:
             full_cmd = full_cmd + \
                 ' -u- "-up0q3r2x2y2z0w2!{}"'.format(patch_name)
             patch_name_retval = patch_name
@@ -570,8 +576,8 @@ def run_stuff(filename):
             raise subprocess.CalledProcessError(status.returncode, status.args, status.stdout,
                                                 status.stderr)
 
-
-if args.unit_test:
-    unit_test(args.config_path)
-else:
-    run_stuff(args.config_path)
+if __name__ == "__main__":
+    if args.unit_test:
+        unit_test(args.config_path)
+    else:
+        run_stuff(args.config_path)
